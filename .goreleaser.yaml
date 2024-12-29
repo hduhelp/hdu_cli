@@ -2,24 +2,26 @@ builds:
   - env:
       - CGO_ENABLED=0
     goos:
-      - linux
-      - windows
-      - darwin
+      - darwin    # 只构建 macOS 版本
     goarch:
-      - amd64
-      - "386"
-      - arm
+      - arm64    # 添加 arm64 架构支持
+      - amd64    # 保留 Intel 架构支持
+    ignore:
+      - goos: darwin
+        goarch: 386    # 移除不需要的架构组合
+
 archives:
   - replacements:
-      darwin: Darwin
-      linux: Linux
-      windows: Windows
-      386: i386
+      darwin: macOS    # 更改显示名称
       amd64: x86_64
+      arm64: arm64    # 添加 ARM 架构的显示名称
+
 checksum:
   name_template: 'checksums.txt'
+
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
+
 changelog:
   sort: asc
   filters:
@@ -39,47 +41,23 @@ release:
     以上就是在 {{ .Tag }} 上的改动!
   name_template: "{{.ProjectName}}-v{{.Version}} {{.Env.USER}}"
 
-
 nfpms:
-  -
-    # ID of the nfpm config, must be unique.
-    # Defaults to "default".
-    id: packages
-
-    # Replacements for GOOS and GOARCH in the package name.
-    # Keys should be valid GOOSs or GOARCHs.
-    # Values are the respective replacements.
-    # Default is empty.
+  - id: packages
     replacements:
       amd64: 64-bit
-      386: 32-bit
+      arm64: arm64    # 添加 ARM 架构的替换名称
       darwin: macOS
-      linux: Tux
 
-    # Your app's vendor.
-    # Default is empty.
     vendor: HDUHELP
-
-    # Template to your app's homepage.
-    # Default is empty.
     homepage: https://github.com/hduhelp/hdu-cli
-
-    # Your app's maintainer (probably you).
-    # Default is empty.
     maintainer: HDUHELP
-    # Your app's license.
-    # Default is empty.
     license: Apache 2.0
-
-    # Formats to be generated.
     formats:
       - deb
       - rpm
 
 publishers:
   - name: fury.io
-    # by specifying `packages` id here goreleaser will only use this publisher
-    # with artifacts identified by this id{{ .Env.FURY_TOKEN }}
     ids:
       - packages
     dir: "{{ dir .ArtifactPath }}"
