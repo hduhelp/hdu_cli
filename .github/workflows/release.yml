@@ -3,21 +3,12 @@ on:
   push:
     tags:
       - 'v*'
-#  workflow_dispatch:
-#    inputs:
-#      build:
-#        description: '发版，请输入true'
-#        required: true
-#        default: 'true'
-#      version_description:
-#        description: '输入版本描述'
-#        required: true
-#        default: '升级内容：性能优化 | bug修复'
 
 jobs:
   build:
     name: 编译并发布版本
-    runs-on: ubuntu-latest
+    # 改为 macos-14 以支持 ARM 架构编译
+    runs-on: macos-14
     steps:
       - name: 准备代码
         uses: actions/checkout@v3
@@ -30,7 +21,8 @@ jobs:
       - name: 准备编译环境
         uses: actions/setup-go@v3
         with:
-          go-version: '1.17'
+          # 建议更新到更新版本的 Go
+          go-version: '1.21'
 
       - uses: actions/cache@v3
         with:
